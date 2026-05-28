@@ -14,12 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
+import { forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ContractorService } from '../services/contractor.service';
 import { ContractorDTO, LoyaltyAccountDTO, LoyaltyTransactionDTO } from '../models/models';
 import { ContractorDialogComponent } from './contractor-dialog.component';
+import { RedeemDialogComponent } from './redeem-dialog.component';
 
 @Component({
   selector: 'app-contractors',
@@ -30,10 +31,10 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
     MatDialogModule, MatSnackBarModule, MatCardModule,
     MatTooltipModule, MatProgressSpinnerModule,
     MatInputModule, MatFormFieldModule, MatTabsModule,
-    MatSelectModule, MatDividerModule, MatChipsModule
+    MatSelectModule, MatDividerModule
   ],
   template: `
-    <h2 class="page-title">🤝 Kontrahenci</h2>
+    <h2 class="page-title">Kontrahenci</h2>
 
     <mat-tab-group animationDuration="200ms">
 
@@ -106,68 +107,87 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
         </div>
       </mat-tab>
 
-      <!-- ===== ZAKŁADKA 2: LOJALNOŚĆ + HISTORIA TRANSAKCJI ===== -->
+      <!-- ===== ZAKŁADKA 2: PROGRAM LOJALNOŚCIOWY ===== -->
       <mat-tab label="Program lojalnościowy">
         <div style="padding-top:16px">
 
-          <!-- INFO O ZASADACH -->
+          <!-- ZASADY PROGRAMU -->
           <mat-card style="margin-bottom:16px;background:#f0f9ff;border-left:4px solid #3b82f6">
             <mat-card-content style="padding:16px">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
                 <mat-icon style="color:#3b82f6">info</mat-icon>
                 <strong style="font-size:15px">Zasady programu lojalnościowego</strong>
               </div>
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
-                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:22px;font-weight:700;color:#3b82f6">1 zł = 1 pkt</div>
-                  <div style="font-size:12px;color:#666;margin-top:6px">Punkt za każdą wydaną złotówkę</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
+
+                <div class="rule-card">
+                  <div class="rule-value" style="color:#3b82f6">1 zł = 1 pkt</div>
+                  <div class="rule-desc">Za każdą wydaną złotówkę naliczany jest 1 punkt</div>
                 </div>
-                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:22px;font-weight:700;color:#f59e0b">10 pkt = 1 zł</div>
-                  <div style="font-size:12px;color:#666;margin-top:6px">Zniżka przy kolejnych zakupach</div>
+
+                <div class="rule-card">
+                  <div class="rule-value" style="color:#f59e0b">10 pkt = 1 zł</div>
+                  <div class="rule-desc">Zniżka przy kolejnych zakupach (wartość 10% zebranych)</div>
                 </div>
-                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:22px;font-weight:700;color:#16a34a">100 pkt = 10 zł</div>
-                  <div style="font-size:12px;color:#666;margin-top:6px">Przykład: zakupy za 100 zł → 10 zł zniżki</div>
+
+                <div class="rule-card">
+                  <div class="rule-value" style="color:#16a34a">100 pkt = 10 zł</div>
+                  <div class="rule-desc">Zakupy za 100 zł → 100 pkt → 10 zł rabatu</div>
                 </div>
-                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:22px;font-weight:700;color:#7c3aed">500 pkt = 50 zł</div>
-                  <div style="font-size:12px;color:#666;margin-top:6px">Stały klient oszczędza więcej</div>
+
+                <div class="rule-card">
+                  <div class="rule-value" style="color:#7c3aed">500 pkt = 50 zł</div>
+                  <div class="rule-desc">Stały klient oszczędza więcej z każdym zamówieniem</div>
                 </div>
+
               </div>
             </mat-card-content>
           </mat-card>
 
+          <!-- WYBÓR KONTRAHENTA + SALDO -->
           <mat-card style="margin-bottom:16px">
             <mat-card-content>
               <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+
                 <mat-form-field appearance="outline" style="width:300px;margin-bottom:-1.25em">
                   <mat-label>Wybierz kontrahenta</mat-label>
                   <mat-select [(ngModel)]="selectedContractorId" (ngModelChange)="onContractorSelect($event)">
                     <mat-option [value]="null">— wybierz —</mat-option>
-                    <mat-option *ngFor="let c of dataSource.data" [value]="c.id">
+                    <mat-option *ngFor="let c of allContractors" [value]="c.id">
                       {{ c.name }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
 
+                <!-- SALDO PUNKTÓW -->
                 <div *ngIf="loyaltyAccount" class="points-badge">
-                  <mat-icon style="color:#f59e0b">star</mat-icon>
-                  <span><strong>{{ loyaltyAccount.points }}</strong> punktów lojalnościowych</span>
+                  <mat-icon style="color:#f59e0b;font-size:22px;height:22px;width:22px">stars</mat-icon>
+                  <div>
+                    <div style="font-weight:700;font-size:16px">{{ loyaltyAccount.points }} pkt</div>
+                    <div style="font-size:12px;color:#92400e">
+                      = {{ loyaltyAccount.points / 10 | number:'1.2-2' }} zł do wykorzystania
+                    </div>
+                  </div>
                 </div>
 
                 <button mat-raised-button color="accent"
-                        *ngIf="loyaltyAccount && loyaltyAccount.points > 0"
+                        *ngIf="loyaltyAccount && loyaltyAccount.points >= 10"
                         (click)="openRedeemDialog()"
                         [disabled]="redeeming">
                   <mat-icon>redeem</mat-icon>
                   {{ redeeming ? 'Realizowanie...' : 'Zrealizuj punkty' }}
                 </button>
+
+                <span *ngIf="loyaltyAccount && loyaltyAccount.points > 0 && loyaltyAccount.points < 10"
+                      style="font-size:12px;color:#888;font-style:italic">
+                  Minimalna realizacja: 10 pkt (1 zł)
+                </span>
+
               </div>
             </mat-card-content>
           </mat-card>
 
-          <!-- Historia transakcji lojalnościowych -->
+          <!-- HISTORIA TRANSAKCJI LOJALNOŚCIOWYCH -->
           <mat-card>
             <mat-card-header>
               <mat-card-title>Historia transakcji lojalnościowych</mat-card-title>
@@ -183,7 +203,7 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
               </p>
 
               <table mat-table [dataSource]="loyaltyTransactions" class="full-width"
-                     *ngIf="!loyaltyLoading && selectedContractorId">
+                     *ngIf="!loyaltyLoading && selectedContractorId && loyaltyTransactions.length > 0">
 
                 <ng-container matColumnDef="date">
                   <th mat-header-cell *matHeaderCellDef>Data</th>
@@ -193,8 +213,9 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
                 <ng-container matColumnDef="type">
                   <th mat-header-cell *matHeaderCellDef>Typ</th>
                   <td mat-cell *matCellDef="let t">
-                    <span [style.color]="t.type === 'EARN' ? '#16a34a' : '#dc2626'">
-                      <mat-icon style="font-size:16px;vertical-align:middle">
+                    <span [style.color]="t.type === 'EARN' ? '#16a34a' : '#dc2626'"
+                          style="display:flex;align-items:center;gap:4px">
+                      <mat-icon style="font-size:17px;height:17px;width:17px">
                         {{ t.type === 'EARN' ? 'add_circle' : 'remove_circle' }}
                       </mat-icon>
                       {{ t.type === 'EARN' ? 'Naliczenie' : 'Realizacja' }}
@@ -206,20 +227,27 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
                   <th mat-header-cell *matHeaderCellDef>Punkty</th>
                   <td mat-cell *matCellDef="let t">
                     <strong [style.color]="t.type === 'EARN' ? '#16a34a' : '#dc2626'">
-                      {{ t.type === 'EARN' ? '+' : '-' }}{{ t.points }}
+                      {{ t.type === 'EARN' ? '+' : '-' }}{{ t.points }} pkt
                     </strong>
                   </td>
                 </ng-container>
 
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>Wartość zniżki</th>
+                <ng-container matColumnDef="value">
+                  <th mat-header-cell *matHeaderCellDef>Wartość</th>
                   <td mat-cell *matCellDef="let t">
                     <span *ngIf="t.type === 'EARN'" style="color:#16a34a">
-                      {{ (t.points / 10) | number:'1.2-2' }} zł przy realizacji
+                      +{{ t.points | number:'1.2-2' }} zł zakupów
                     </span>
-                    <span *ngIf="t.type !== 'EARN'" style="color:#dc2626">
-                      -{{ (t.points / 10) | number:'1.2-2' }} zł zniżki zastosowano
+                    <span *ngIf="t.type !== 'EARN'" style="color:#dc2626;font-weight:600">
+                      -{{ (t.points / 10) | number:'1.2-2' }} zł zniżki
                     </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>Opis</th>
+                  <td mat-cell *matCellDef="let t" style="color:#666;font-size:13px">
+                    {{ t.description || (t.type === 'EARN' ? 'Punkty za zakup' : 'Realizacja zniżki') }}
                   </td>
                 </ng-container>
 
@@ -229,19 +257,15 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
 
               <p *ngIf="!loyaltyLoading && selectedContractorId && loyaltyTransactions.length === 0"
                  style="text-align:center;color:#888;padding:32px">
-                Brak transakcji lojalnościowych
+                Brak transakcji lojalnościowych dla tego kontrahenta
               </p>
             </mat-card-content>
           </mat-card>
+
         </div>
       </mat-tab>
 
     </mat-tab-group>
-
-    <!-- Dialog realizacji punktów -->
-    <ng-template #redeemTpl>
-      <p>Wpisz liczbę punktów do realizacji:</p>
-    </ng-template>
   `,
   styles: [`
     .action-bar { display:flex; align-items:center; margin-bottom:16px; }
@@ -249,8 +273,17 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
     .table-row:hover { background:#f5f5f5; }
     mat-card { border-radius:12px !important; overflow:hidden; }
     .full-width { width:100%; }
-    .points-badge { display:flex; align-items:center; gap:8px; font-size:16px;
-      background:#fef3c7; padding:8px 16px; border-radius:8px; }
+    .points-badge {
+      display:flex; align-items:center; gap:10px;
+      background:#fef3c7; padding:10px 16px; border-radius:10px;
+      border:1px solid #fde68a;
+    }
+    .rule-card {
+      background:white; border-radius:8px; padding:12px;
+      text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.08);
+    }
+    .rule-value { font-size:20px; font-weight:700; }
+    .rule-desc { font-size:11px; color:#666; margin-top:6px; line-height:1.4; }
   `]
 })
 export class ContractorsComponent implements OnInit {
@@ -259,12 +292,15 @@ export class ContractorsComponent implements OnInit {
   loading = false;
   searchCtrl = new FormControl('');
 
+  // full unfiltered list for loyalty dropdown
+  allContractors: ContractorDTO[] = [];
+
   selectedContractorId: number | null = null;
   loyaltyAccount: LoyaltyAccountDTO | null = null;
   loyaltyTransactions: LoyaltyTransactionDTO[] = [];
   loyaltyLoading = false;
   redeeming = false;
-  loyaltyCols = ['date', 'type', 'points', 'description'];
+  loyaltyCols = ['date', 'type', 'points', 'value', 'description'];
 
   constructor(
     private contractorService: ContractorService,
@@ -274,6 +310,7 @@ export class ContractorsComponent implements OnInit {
 
   ngOnInit() {
     this.load();
+    this.loadAll();
     this.searchCtrl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -291,57 +328,72 @@ export class ContractorsComponent implements OnInit {
     });
   }
 
+  // load full list for loyalty dropdown (no search filter)
+  loadAll() {
+    this.contractorService.getAll().subscribe({
+      next: (data) => { this.allContractors = data; },
+      error: () => { this.allContractors = []; }
+    });
+  }
+
   onContractorSelect(id: number | null) {
     this.loyaltyAccount = null;
     this.loyaltyTransactions = [];
     if (!id) return;
 
     this.loyaltyLoading = true;
-    this.contractorService.getLoyalty(id).subscribe({
-      next: (acc) => { this.loyaltyAccount = acc; },
-      error: () => { this.loyaltyAccount = null; }
-    });
 
-    this.contractorService.getLoyaltyTransactions(id).subscribe({
-      next: (txs) => {
-        this.loyaltyTransactions = (txs ?? []).sort(
+    forkJoin({
+      account: this.contractorService.getLoyalty(id),
+      transactions: this.contractorService.getLoyaltyTransactions(id)
+    }).subscribe({
+      next: ({ account, transactions }) => {
+        this.loyaltyAccount = account;
+        this.loyaltyTransactions = (transactions ?? []).sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
         this.loyaltyLoading = false;
       },
       error: () => {
-        this.loyaltyTransactions = [];
         this.loyaltyLoading = false;
       }
     });
   }
 
   openRedeemDialog() {
-    const pointsStr = prompt(
-      `Kontrahent ma ${this.loyaltyAccount!.points} pkt. Ile punktów zrealizować?`
-    );
-    if (!pointsStr) return;
-    const points = parseInt(pointsStr, 10);
-    if (isNaN(points) || points <= 0) {
-      this.snack.open('Podaj prawidłową liczbę punktów', 'Zamknij', { duration: 3000 });
-      return;
-    }
-    if (points > this.loyaltyAccount!.points) {
-      this.snack.open('Niewystarczająca liczba punktów', 'Zamknij', { duration: 3000 });
-      return;
-    }
+    if (!this.loyaltyAccount) return;
 
-    this.redeeming = true;
-    this.contractorService.redeemPoints(this.selectedContractorId!, points).subscribe({
-      next: () => {
-        this.snack.open(`Zrealizowano ${points} punktów!`, 'OK', { duration: 3000 });
-        this.redeeming = false;
-        this.onContractorSelect(this.selectedContractorId);
+    const contractorName = this.allContractors.find(c => c.id === this.selectedContractorId)?.name ?? '';
+
+    const ref = this.dialog.open(RedeemDialogComponent, {
+      data: {
+        contractorName,
+        points: this.loyaltyAccount.points
       },
-      error: (e) => {
-        this.snack.open(e.error?.message || 'Błąd realizacji punktów', 'Zamknij', { duration: 3000 });
-        this.redeeming = false;
-      }
+      width: '420px'
+    });
+
+    ref.afterClosed().subscribe((pointsToRedeem: number | undefined) => {
+      if (!pointsToRedeem || pointsToRedeem <= 0) return;
+
+      const discount = (pointsToRedeem / 10).toFixed(2);
+      this.redeeming = true;
+
+      this.contractorService.redeemPoints(this.selectedContractorId!, pointsToRedeem).subscribe({
+        next: () => {
+          this.snack.open(
+            `Zrealizowano ${pointsToRedeem} pkt — przyznano ${discount} zł zniżki!`,
+            'OK',
+            { duration: 4000 }
+          );
+          this.redeeming = false;
+          this.onContractorSelect(this.selectedContractorId);
+        },
+        error: (e) => {
+          this.snack.open(e.error?.message || 'Błąd realizacji punktów', 'Zamknij', { duration: 3000 });
+          this.redeeming = false;
+        }
+      });
     });
   }
 
@@ -358,6 +410,7 @@ export class ContractorsComponent implements OnInit {
         next: () => {
           this.snack.open('Zapisano!', 'OK', { duration: 2000 });
           this.load(this.searchCtrl.value ?? '');
+          this.loadAll();
         },
         error: (e) => this.snack.open(e.error?.message || 'Błąd', 'Zamknij', { duration: 3000 })
       });
@@ -370,6 +423,12 @@ export class ContractorsComponent implements OnInit {
       next: () => {
         this.snack.open('Usunięto!', 'OK', { duration: 2000 });
         this.load(this.searchCtrl.value ?? '');
+        this.loadAll();
+        if (this.selectedContractorId === id) {
+          this.selectedContractorId = null;
+          this.loyaltyAccount = null;
+          this.loyaltyTransactions = [];
+        }
       },
       error: (e) => this.snack.open(e.error?.message || 'Błąd usuwania', 'Zamknij', { duration: 3000 })
     });
