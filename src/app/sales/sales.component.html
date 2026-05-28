@@ -73,54 +73,49 @@
           </div>
         </div>
 
-        <div class="items-label">Pozycje zamówienia:</div>
+        <div class="items-section">
+          <div class="items-label">Pozycje zamówienia</div>
 
-        <div formArrayName="items">
-          <div *ngFor="let item of items.controls; let i = index"
-               [formGroupName]="i" class="item-row">
-            <mat-form-field appearance="outline" class="product-field">
-              <mat-label>Produkt</mat-label>
-              <input
-                type="text"
-                matInput
-                formControlName="product"
-                [matAutocomplete]="productAuto"
-                placeholder="Zacznij pisać nazwę…"
-              >
-              <mat-autocomplete
-                #productAuto="matAutocomplete"
-                [displayWith]="productDisplay"
-                autoActiveFirstOption
-              >
-                <mat-option *ngFor="let p of filteredProductsFor(i)" [value]="p">
-                  {{ p.name }} (stan: {{ p.quantity }}, {{ p.price | number:'1.2-2' }} zł)
-                </mat-option>
-              </mat-autocomplete>
-              <mat-error>Wybierz produkt</mat-error>
-            </mat-form-field>
+          <div formArrayName="items">
+            <div *ngFor="let item of items.controls; let i = index"
+                 [formGroupName]="i" class="item-row">
+              <mat-form-field appearance="outline" class="product-field">
+                <mat-label>Produkt</mat-label>
+                <input type="text" matInput formControlName="product"
+                       [matAutocomplete]="productAuto"
+                       placeholder="Zacznij pisać nazwę…">
+                <mat-autocomplete #productAuto="matAutocomplete"
+                                  [displayWith]="productDisplay"
+                                  autoActiveFirstOption>
+                  <mat-option *ngFor="let p of filteredProductsFor(i)" [value]="p">
+                    {{ p.name }} (stan: {{ p.quantity }}, {{ p.price | number:'1.2-2' }} zł)
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Wybierz produkt</mat-error>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline" class="qty-field">
-              <mat-label>Ilość</mat-label>
-              <input matInput type="number" formControlName="quantity" min="1">
-              <mat-error>Min. 1</mat-error>
-            </mat-form-field>
+              <mat-form-field appearance="outline" class="qty-field">
+                <mat-label>Ilość</mat-label>
+                <input matInput type="number" formControlName="quantity" min="1">
+                <mat-error>Min. 1</mat-error>
+              </mat-form-field>
 
-            <button mat-icon-button color="warn" type="button"
-                    (click)="removeItem(i)" [disabled]="items.length === 1" matTooltip="Usuń pozycję">
-              <mat-icon>remove_circle</mat-icon>
-            </button>
+              <button mat-icon-button color="warn" type="button"
+                      (click)="removeItem(i)" [disabled]="items.length === 1"
+                      matTooltip="Usuń pozycję">
+                <mat-icon>remove_circle_outline</mat-icon>
+              </button>
+            </div>
           </div>
+
+          <button mat-stroked-button type="button" (click)="addItem()" class="add-item-btn">
+            <mat-icon>add_circle_outline</mat-icon> Dodaj pozycję
+          </button>
         </div>
-
-        <button mat-stroked-button type="button" (click)="addItem()" class="add-item-btn">
-          <mat-icon>add</mat-icon> Dodaj pozycję
-        </button>
-
-        <mat-divider style="margin:16px 0"></mat-divider>
 
         <button mat-raised-button color="primary" type="submit"
                 class="full-width submit-btn" [disabled]="submitting">
-          <mat-icon>save</mat-icon>
+          <mat-icon>{{ submitting ? 'hourglass_empty' : 'shopping_cart_checkout' }}</mat-icon>
           {{ submitting ? 'Zapisywanie...' : 'Zapisz sprzedaż' }}
         </button>
       </form>
