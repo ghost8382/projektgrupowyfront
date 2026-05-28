@@ -16,7 +16,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { SaleService } from '../services/sale.service';
 import { UserService } from '../services/user.service';
@@ -49,8 +48,7 @@ import { CompanyConfigDialogComponent } from '../company/company-config-dialog.c
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatSortModule,
-    MatButtonToggleModule
+    MatSortModule
   ],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
@@ -67,10 +65,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   contractors: ContractorDTO[] = [];
   allSales: SaleDTO[] = [];
 
-  // sortowanie i filtr
   filterContractorId: number | '' = '';
-  sortPrice: 'asc' | 'desc' | '' = '';
-  sortDate: 'asc' | 'desc' | '' = 'desc'; // domyślnie od najnowszej
 
   activeVoucher: LoyaltyVoucher | null = null;
   voucherUsed = false;
@@ -153,23 +148,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   applyFilters() {
     let data = [...this.allSales];
-
-    // filtr kontrahenta
     if (this.filterContractorId !== '') {
       data = data.filter(s => s.contractorId === this.filterContractorId);
     }
-
-    // sortowanie — cena ma priorytet nad datą
-    if (this.sortPrice === 'asc') {
-      data.sort((a, b) => a.totalAmount - b.totalAmount);
-    } else if (this.sortPrice === 'desc') {
-      data.sort((a, b) => b.totalAmount - a.totalAmount);
-    } else if (this.sortDate === 'asc') {
-      data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    } else if (this.sortDate === 'desc') {
-      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }
-
     this.dataSource.data = data;
   }
 
@@ -228,19 +209,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSortPrice(val: string) {
-    this.sortDate = '';
-    this.sortPrice = val as any;
-    this.applyFilters();
-  }
-
-  onSortDate(val: string) {
-    this.sortPrice = '';
-    this.sortDate = val as any;
-    this.applyFilters();
-  }
-
-  getProductNames(sale: SaleDTO): string {
+getProductNames(sale: SaleDTO): string {
     return (sale.items ?? []).map(i => i.productName).join(', ');
   }
 

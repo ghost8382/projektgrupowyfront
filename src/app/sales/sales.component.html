@@ -131,7 +131,6 @@
 
       <!-- PANEL FILTRÓW -->
       <div class="filter-bar">
-
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Kontrahent</mat-label>
           <mat-icon matPrefix style="margin-right:4px;color:#888">person</mat-icon>
@@ -141,25 +140,10 @@
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sortuj po cenie</mat-label>
-          <mat-icon matPrefix style="margin-right:4px;color:#888">payments</mat-icon>
-          <mat-select [(ngModel)]="sortPrice" (ngModelChange)="onSortPrice($event)">
-            <mat-option value="">— bez sortowania —</mat-option>
-            <mat-option value="asc">↑ Od najniższej</mat-option>
-            <mat-option value="desc">↓ Od najwyższej</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Sortuj po dacie</mat-label>
-          <mat-icon matPrefix style="margin-right:4px;color:#888">calendar_month</mat-icon>
-          <mat-select [(ngModel)]="sortDate" (ngModelChange)="onSortDate($event)">
-            <mat-option value="desc">↓ Od najnowszej</mat-option>
-            <mat-option value="asc">↑ Od najstarszej</mat-option>
-          </mat-select>
-        </mat-form-field>
-
+        <span class="sort-hint">
+          <mat-icon>swap_vert</mat-icon>
+          Kliknij nagłówek kolumny aby posortować
+        </span>
       </div>
 
       <div *ngIf="loading" style="display:flex;justify-content:center;padding:40px">
