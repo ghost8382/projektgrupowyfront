@@ -21,6 +21,10 @@ export class SaleService {
     return this.http.get<SaleDTO[]>(`${this.api}/user/${userId}`);
   }
 
+  getByContractor(contractorId: number): Observable<SaleDTO[]> {
+    return this.http.get<SaleDTO[]>(`${this.api}/contractor/${contractorId}`);
+  }
+
   create(request: CreateSaleRequest): Observable<SaleDTO> {
     return this.http.post<SaleDTO>(this.api, request);
   }

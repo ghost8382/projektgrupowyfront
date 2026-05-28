@@ -22,6 +22,7 @@ import { LoyaltyVoucherService } from '../services/loyalty-voucher.service';
 import { ContractorDTO, LoyaltyAccountDTO, LoyaltyTransactionDTO } from '../models/models';
 import { ContractorDialogComponent } from './contractor-dialog.component';
 import { RedeemDialogComponent } from './redeem-dialog.component';
+import { ContractorHistoryDialogComponent } from './contractor-history-dialog.component';
 
 @Component({
   selector: 'app-contractors',
@@ -85,6 +86,15 @@ import { RedeemDialogComponent } from './redeem-dialog.component';
                 <th mat-header-cell *matHeaderCellDef>E-mail</th>
                 <td mat-cell *matCellDef="let c">{{ c.email || '—' }}</td>
               </ng-container>
+              <ng-container matColumnDef="history">
+                <th mat-header-cell *matHeaderCellDef>Historia</th>
+                <td mat-cell *matCellDef="let c">
+                  <button mat-icon-button matTooltip="Historia zakupów" (click)="openHistory(c)">
+                    <mat-icon>history</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Akcje</th>
                 <td mat-cell *matCellDef="let c">
@@ -292,7 +302,7 @@ import { RedeemDialogComponent } from './redeem-dialog.component';
 })
 export class ContractorsComponent implements OnInit {
   dataSource = new MatTableDataSource<ContractorDTO>();
-  cols = ['id', 'name', 'nip', 'city', 'phone', 'email', 'actions'];
+  cols = ['id', 'name', 'nip', 'city', 'phone', 'email', 'history', 'actions'];
   loading = false;
   searchCtrl = new FormControl('');
 
@@ -407,6 +417,14 @@ export class ContractorsComponent implements OnInit {
           this.redeeming = false;
         }
       });
+    });
+  }
+
+  openHistory(contractor: ContractorDTO) {
+    this.dialog.open(ContractorHistoryDialogComponent, {
+      data: contractor,
+      width: '860px',
+      maxWidth: '95vw'
     });
   }
 
