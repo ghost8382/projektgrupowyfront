@@ -133,9 +133,52 @@
       <mat-card-title>Historia transakcji</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+
+      <!-- PANEL FILTRÓW -->
+      <div class="filter-bar">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Kontrahent</mat-label>
+          <mat-select [(ngModel)]="filterContractorId" (ngModelChange)="applyFilters()">
+            <mat-option [value]="''">— wszyscy —</mat-option>
+            <mat-option *ngFor="let c of contractors" [value]="c.id">{{ c.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field filter-date">
+          <mat-label>Data od</mat-label>
+          <input matInput type="date" [(ngModel)]="filterDateFrom" (ngModelChange)="applyFilters()">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field filter-date">
+          <mat-label>Data do</mat-label>
+          <input matInput type="date" [(ngModel)]="filterDateTo" (ngModelChange)="applyFilters()">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field filter-price">
+          <mat-label>Cena min (zł)</mat-label>
+          <input matInput type="number" [(ngModel)]="filterMinPrice" (ngModelChange)="applyFilters()" min="0" placeholder="0">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field filter-price">
+          <mat-label>Cena max (zł)</mat-label>
+          <input matInput type="number" [(ngModel)]="filterMaxPrice" (ngModelChange)="applyFilters()" min="0" placeholder="∞">
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="clearFilters()" matTooltip="Wyczyść filtry"
+                [disabled]="!hasActiveFilters()">
+          <mat-icon>filter_alt_off</mat-icon> Wyczyść
+        </button>
+      </div>
+
+      <!-- INFO O LICZBIE WYNIKÓW -->
+      <div *ngIf="hasActiveFilters()" style="font-size:13px;color:#666;margin-bottom:8px;padding:0 4px">
+        Wyników: <strong>{{ dataSource.data.length }}</strong> z {{ allSales.length }}
+      </div>
+
       <div *ngIf="loading" style="display:flex;justify-content:center;padding:40px">
         <mat-spinner diameter="40"></mat-spinner>
       </div>
+
       <table mat-table [dataSource]="dataSource" matSort class="full-width" *ngIf="!loading">
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
@@ -157,9 +200,14 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Suma</th>
           <td mat-cell *matCellDef="let s"><strong>{{ s.totalAmount | number:'1.2-2' }} zł</strong></td>
         </ng-container>
-        <ng-container matColumnDef="itemsCount">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Pozycji</th>
-          <td mat-cell *matCellDef="let s">{{ s.items.length }}</td>
+        <ng-container matColumnDef="products">
+          <th mat-header-cell *matHeaderCellDef>Produkty</th>
+          <td mat-cell *matCellDef="let s" style="font-size:13px;color:#555;max-width:220px">
+            <span [matTooltip]="s.items.map((i:any) => i.productName).join(', ')"
+                  style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">
+              {{ s.items.map((i:any) => i.productName).join(', ') }}
+            </span>
+          </td>
         </ng-container>
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Szczegóły</th>
@@ -172,6 +220,12 @@
         <tr mat-header-row *matHeaderRowDef="cols"></tr>
         <tr mat-row *matRowDef="let row; columns: cols" class="table-row"></tr>
       </table>
+
+      <p *ngIf="!loading && dataSource.data.length === 0"
+         style="text-align:center;color:#888;padding:24px">
+        Brak transakcji spełniających kryteria
+      </p>
+
     </mat-card-content>
   </mat-card>
 </div>

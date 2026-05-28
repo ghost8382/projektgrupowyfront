@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormArray, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormArray, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,6 +33,7 @@ import { CompanyConfigDialogComponent } from '../company/company-config-dialog.c
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -57,11 +58,19 @@ export class SalesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   dataSource = new MatTableDataSource<SaleDTO>();
-  cols = ['id', 'date', 'username', 'contractorName', 'totalAmount', 'itemsCount', 'actions'];
+  cols = ['id', 'date', 'username', 'contractorName', 'totalAmount', 'products', 'actions'];
 
   users: UserDTO[] = [];
   products: ProductDTO[] = [];
   contractors: ContractorDTO[] = [];
+  allSales: SaleDTO[] = [];
+
+  // filtry
+  filterContractorId: number | '' = '';
+  filterDateFrom = '';
+  filterDateTo = '';
+  filterMinPrice: number | null = null;
+  filterMaxPrice: number | null = null;
 
   activeVoucher: LoyaltyVoucher | null = null;
   voucherUsed = false;
@@ -128,16 +137,60 @@ export class SalesComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.saleService.getAll().subscribe({
       next: (sales) => {
-        this.dataSource.data = (sales ?? []).sort(
+        this.allSales = (sales ?? []).sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
+        this.applyFilters();
         this.loading = false;
       },
       error: () => {
+        this.allSales = [];
         this.dataSource.data = [];
         this.loading = false;
       }
     });
+  }
+
+  applyFilters() {
+    let filtered = [...this.allSales];
+
+    if (this.filterContractorId !== '') {
+      filtered = filtered.filter(s => s.contractorId === this.filterContractorId);
+    }
+    if (this.filterDateFrom) {
+      const from = new Date(this.filterDateFrom);
+      filtered = filtered.filter(s => new Date(s.date) >= from);
+    }
+    if (this.filterDateTo) {
+      const to = new Date(this.filterDateTo);
+      to.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(s => new Date(s.date) <= to);
+    }
+    if (this.filterMinPrice != null && this.filterMinPrice !== ('' as any)) {
+      filtered = filtered.filter(s => s.totalAmount >= this.filterMinPrice!);
+    }
+    if (this.filterMaxPrice != null && this.filterMaxPrice !== ('' as any)) {
+      filtered = filtered.filter(s => s.totalAmount <= this.filterMaxPrice!);
+    }
+
+    this.dataSource.data = filtered;
+  }
+
+  clearFilters() {
+    this.filterContractorId = '';
+    this.filterDateFrom = '';
+    this.filterDateTo = '';
+    this.filterMinPrice = null;
+    this.filterMaxPrice = null;
+    this.applyFilters();
+  }
+
+  hasActiveFilters(): boolean {
+    return this.filterContractorId !== '' ||
+           !!this.filterDateFrom ||
+           !!this.filterDateTo ||
+           this.filterMinPrice != null ||
+           this.filterMaxPrice != null;
   }
 
   createItem() {
