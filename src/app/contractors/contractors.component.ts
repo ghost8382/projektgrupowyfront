@@ -233,13 +233,13 @@ import { RedeemDialogComponent } from './redeem-dialog.component';
                 </ng-container>
 
                 <ng-container matColumnDef="value">
-                  <th mat-header-cell *matHeaderCellDef>Wartość</th>
+                  <th mat-header-cell *matHeaderCellDef>Zniżka</th>
                   <td mat-cell *matCellDef="let t">
-                    <span *ngIf="t.type === 'EARN'" style="color:#16a34a">
-                      +{{ t.points | number:'1.2-2' }} zł zakupów
+                    <span *ngIf="t.type === 'EARN'" style="color:#16a34a;font-weight:600">
+                      +{{ (t.points / 10) | number:'1.2-2' }} zł
                     </span>
                     <span *ngIf="t.type !== 'EARN'" style="color:#dc2626;font-weight:600">
-                      -{{ (t.points / 10) | number:'1.2-2' }} zł zniżki
+                      -{{ (t.points / 10) | number:'1.2-2' }} zł
                     </span>
                   </td>
                 </ng-container>
