@@ -67,8 +67,6 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   // filtry
   filterContractorId: number | '' = '';
-  filterDateFrom = '';
-  filterDateTo = '';
   filterMinPrice: number | null = null;
   filterMaxPrice: number | null = null;
 
@@ -157,15 +155,6 @@ export class SalesComponent implements OnInit, AfterViewInit {
     if (this.filterContractorId !== '') {
       filtered = filtered.filter(s => s.contractorId === this.filterContractorId);
     }
-    if (this.filterDateFrom) {
-      const from = new Date(this.filterDateFrom);
-      filtered = filtered.filter(s => new Date(s.date) >= from);
-    }
-    if (this.filterDateTo) {
-      const to = new Date(this.filterDateTo);
-      to.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(s => new Date(s.date) <= to);
-    }
     if (this.filterMinPrice != null && this.filterMinPrice !== ('' as any)) {
       filtered = filtered.filter(s => s.totalAmount >= this.filterMinPrice!);
     }
@@ -178,8 +167,6 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   clearFilters() {
     this.filterContractorId = '';
-    this.filterDateFrom = '';
-    this.filterDateTo = '';
     this.filterMinPrice = null;
     this.filterMaxPrice = null;
     this.applyFilters();
@@ -187,8 +174,6 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   hasActiveFilters(): boolean {
     return this.filterContractorId !== '' ||
-           !!this.filterDateFrom ||
-           !!this.filterDateTo ||
            this.filterMinPrice != null ||
            this.filterMaxPrice != null;
   }
@@ -246,6 +231,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
         this.submitting = false;
       }
     });
+  }
+
+  getProductNames(sale: SaleDTO): string {
+    return (sale.items ?? []).map(i => i.productName).join(', ');
   }
 
   onContractorChange(contractorId: number | null) {

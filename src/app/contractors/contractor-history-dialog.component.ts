@@ -90,7 +90,7 @@ import { SaleDTO, ContractorDTO } from '../models/models';
           <ng-container matColumnDef="products">
             <th mat-header-cell *matHeaderCellDef>Produkty</th>
             <td mat-cell *matCellDef="let s" style="font-size:12px;color:#666;max-width:200px">
-              {{ s.items.map((i: any) => i.productName).join(', ') }}
+              {{ getProductNames(s) }}
             </td>
           </ng-container>
 
@@ -116,6 +116,10 @@ export class ContractorHistoryDialogComponent implements OnInit {
   sales: SaleDTO[] = [];
   loading = true;
   cols = ['id', 'date', 'username', 'items', 'total', 'products'];
+
+  getProductNames(sale: SaleDTO): string {
+    return (sale.items ?? []).map(i => i.productName).join(', ');
+  }
 
   get totalSpent(): number {
     return this.sales.reduce((sum, s) => sum + s.totalAmount, 0);
