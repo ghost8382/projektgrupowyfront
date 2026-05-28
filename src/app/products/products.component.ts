@@ -50,8 +50,6 @@ export class ProductsComponent implements OnInit {
   columns = ['id', 'name', 'categoryName', 'quantity', 'price', 'actions'];
   categories: CategoryDTO[] = [];
   categoryTree: CategoryNode[] = [];
-  parentMap = new Map<number, number | null>();
-  hoveredCategoryId: number | null = null;
   totalElements = 0;
   pageSize = 10;
   pageIndex = 0;
@@ -78,34 +76,9 @@ export class ProductsComponent implements OnInit {
     this.categoryControl.valueChanges.subscribe(() => { this.pageIndex = 0; this.load(); });
   }
 
-  hoverCategory(categoryId: number | null) {
-    this.hoveredCategoryId = categoryId;
-  }
-
-  isExpanded(node: CategoryNode): boolean {
-    if (this.hoveredCategoryId === null) {
-      return false;
-    }
-    let current: number | null = this.hoveredCategoryId;
-    while (current != null) {
-      if (current === node.id) {
-        return true;
-      }
-      current = this.parentMap.get(current) ?? null;
-    }
-    return false;
-  }
-
-  private buildParentMap(cats: CategoryDTO[]): Map<number, number | null> {
-    const map = new Map<number, number | null>();
-    cats.forEach(cat => map.set(cat.id!, cat.parentId ?? null));
-    return map;
-  }
-
   private buildTree(cats: CategoryDTO[]): CategoryNode[] {
     const map = new Map<number, CategoryNode>();
     cats.forEach((c) => map.set(c.id!, { id: c.id!, name: c.name, parentId: c.parentId, children: [] }));
-    this.parentMap = this.buildParentMap(cats);
 
     const roots: CategoryNode[] = [];
     map.forEach((node) => {
@@ -115,7 +88,6 @@ export class ProductsComponent implements OnInit {
         roots.push(node);
       }
     });
-
     return roots;
   }
 

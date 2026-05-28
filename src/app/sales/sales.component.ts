@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormArray, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,12 +45,15 @@ import { CompanyConfigDialogComponent } from '../company/company-config-dialog.c
     MatCardModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSortModule
   ],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
 })
-export class SalesComponent implements OnInit {
+export class SalesComponent implements OnInit, AfterViewInit {
+
+  @ViewChild(MatSort) sort!: MatSort;
 
   dataSource = new MatTableDataSource<SaleDTO>();
   cols = ['id', 'date', 'username', 'contractorName', 'totalAmount', 'itemsCount', 'actions'];
@@ -78,6 +82,18 @@ export class SalesComponent implements OnInit {
       contractorId: [null as number | null],
       items:        this.fb.array([this.createItem()])
     });
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item: SaleDTO, prop: string) => {
+      switch (prop) {
+        case 'date': return new Date(item.date).getTime();
+        case 'totalAmount': return item.totalAmount;
+        case 'itemsCount': return item.items.length;
+        default: return (item as any)[prop] ?? '';
+      }
+    };
   }
 
   ngOnInit() {

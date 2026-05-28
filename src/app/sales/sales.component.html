@@ -97,29 +97,29 @@
       <div *ngIf="loading" style="display:flex;justify-content:center;padding:40px">
         <mat-spinner diameter="40"></mat-spinner>
       </div>
-      <table mat-table [dataSource]="dataSource" class="full-width" *ngIf="!loading">
+      <table mat-table [dataSource]="dataSource" matSort class="full-width" *ngIf="!loading">
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>#</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
           <td mat-cell *matCellDef="let s">{{ s.id }}</td>
         </ng-container>
         <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>Data</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Data</th>
           <td mat-cell *matCellDef="let s">{{ s.date | date:'dd.MM.yyyy HH:mm' }}</td>
         </ng-container>
         <ng-container matColumnDef="username">
-          <th mat-header-cell *matHeaderCellDef>Sprzedawca</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Sprzedawca</th>
           <td mat-cell *matCellDef="let s">{{ s.username }}</td>
         </ng-container>
         <ng-container matColumnDef="contractorName">
-          <th mat-header-cell *matHeaderCellDef>Kontrahent</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Kontrahent</th>
           <td mat-cell *matCellDef="let s">{{ s.contractorName || '—' }}</td>
         </ng-container>
         <ng-container matColumnDef="totalAmount">
-          <th mat-header-cell *matHeaderCellDef>Suma</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Suma</th>
           <td mat-cell *matCellDef="let s"><strong>{{ s.totalAmount | number:'1.2-2' }} zł</strong></td>
         </ng-container>
         <ng-container matColumnDef="itemsCount">
-          <th mat-header-cell *matHeaderCellDef>Pozycji</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Pozycji</th>
           <td mat-cell *matCellDef="let s">{{ s.items.length }}</td>
         </ng-container>
         <ng-container matColumnDef="actions">

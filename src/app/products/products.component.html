@@ -12,14 +12,8 @@
     <mat-select [formControl]="categoryControl">
       <mat-option [value]="null">Wszystkie</mat-option>
       <ng-container *ngFor="let root of categoryTree">
-        <mat-option
-          [value]="root.id"
-          (mouseenter)="hoverCategory(root.id)"
-          (mouseleave)="hoverCategory(null)"
-        >
-          {{ root.name }}
-        </mat-option>
-        <ng-container *ngIf="root.children.length > 0 && isExpanded(root)">
+        <mat-option [value]="root.id"><strong>{{ root.name }}</strong></mat-option>
+        <ng-container *ngIf="root.children.length > 0">
           <ng-container *ngTemplateOutlet="nestedOptions; context: { nodes: root.children, level: 1 }"></ng-container>
         </ng-container>
       </ng-container>
@@ -28,16 +22,10 @@
 
   <ng-template #nestedOptions let-nodes="nodes" let-level="level">
     <ng-container *ngFor="let child of nodes">
-      <mat-option
-        [value]="child.id"
-        class="nested-option"
-        [style.padding-left.px]="24 + level * 16"
-        (mouseenter)="hoverCategory(child.id)"
-        (mouseleave)="hoverCategory(null)"
-      >
+      <mat-option [value]="child.id" [style.padding-left.px]="24 + level * 16">
         {{ child.name }}
       </mat-option>
-      <ng-container *ngIf="child.children.length > 0 && isExpanded(child)">
+      <ng-container *ngIf="child.children.length > 0">
         <ng-container *ngTemplateOutlet="nestedOptions; context: { nodes: child.children, level: level + 1 }"></ng-container>
       </ng-container>
     </ng-container>

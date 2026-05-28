@@ -80,3 +80,18 @@ export interface CompanyConfigDTO {
   email?: string | null;
   bankAccount?: string | null;
 }
+
+export interface LoyaltyAccountDTO {
+  id?: number;
+  points: number;
+  contractorId: number;
+  contractorName?: string;
+}
+
+export interface LoyaltyTransactionDTO {
+  id?: number;
+  points: number;
+  type: string;
+  description?: string;
+  date: string;
+}
