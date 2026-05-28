@@ -132,37 +132,33 @@
       <!-- PANEL FILTRÓW -->
       <div class="filter-bar">
 
-        <mat-form-field appearance="outline" class="filter-contractor">
+        <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Kontrahent</mat-label>
+          <mat-icon matPrefix style="margin-right:4px;color:#888">person</mat-icon>
           <mat-select [(ngModel)]="filterContractorId" (ngModelChange)="applyFilters()">
             <mat-option value="">— wszyscy —</mat-option>
             <mat-option *ngFor="let c of contractors" [value]="c.id">{{ c.name }}</mat-option>
           </mat-select>
         </mat-form-field>
 
-        <div class="sort-group">
-          <span class="sort-label"><mat-icon>attach_money</mat-icon> Cena</span>
-          <mat-button-toggle-group [(ngModel)]="sortPrice" (ngModelChange)="onSortPrice($event)">
-            <mat-button-toggle value="asc">
-              <mat-icon>arrow_upward</mat-icon> Najniższa
-            </mat-button-toggle>
-            <mat-button-toggle value="desc">
-              <mat-icon>arrow_downward</mat-icon> Najwyższa
-            </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Sortuj po cenie</mat-label>
+          <mat-icon matPrefix style="margin-right:4px;color:#888">payments</mat-icon>
+          <mat-select [(ngModel)]="sortPrice" (ngModelChange)="onSortPrice($event)">
+            <mat-option value="">— bez sortowania —</mat-option>
+            <mat-option value="asc">↑ Od najniższej</mat-option>
+            <mat-option value="desc">↓ Od najwyższej</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-        <div class="sort-group">
-          <span class="sort-label"><mat-icon>calendar_today</mat-icon> Data</span>
-          <mat-button-toggle-group [(ngModel)]="sortDate" (ngModelChange)="onSortDate($event)">
-            <mat-button-toggle value="desc">
-              <mat-icon>arrow_downward</mat-icon> Najnowsza
-            </mat-button-toggle>
-            <mat-button-toggle value="asc">
-              <mat-icon>arrow_upward</mat-icon> Najstarsza
-            </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Sortuj po dacie</mat-label>
+          <mat-icon matPrefix style="margin-right:4px;color:#888">calendar_month</mat-icon>
+          <mat-select [(ngModel)]="sortDate" (ngModelChange)="onSortDate($event)">
+            <mat-option value="desc">↓ Od najnowszej</mat-option>
+            <mat-option value="asc">↑ Od najstarszej</mat-option>
+          </mat-select>
+        </mat-form-field>
 
       </div>
 

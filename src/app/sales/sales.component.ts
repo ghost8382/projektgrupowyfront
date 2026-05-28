@@ -70,7 +70,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   // sortowanie i filtr
   filterContractorId: number | '' = '';
   sortPrice: 'asc' | 'desc' | '' = '';
-  sortDate: 'asc' | 'desc' | '' = '';
+  sortDate: 'asc' | 'desc' | '' = 'desc'; // domyślnie od najnowszej
 
   activeVoucher: LoyaltyVoucher | null = null;
   voucherUsed = false;
