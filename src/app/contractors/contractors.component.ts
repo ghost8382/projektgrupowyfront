@@ -113,22 +113,26 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
           <!-- INFO O ZASADACH -->
           <mat-card style="margin-bottom:16px;background:#f0f9ff;border-left:4px solid #3b82f6">
             <mat-card-content style="padding:16px">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
                 <mat-icon style="color:#3b82f6">info</mat-icon>
                 <strong style="font-size:15px">Zasady programu lojalnościowego</strong>
               </div>
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:8px">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
                 <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:24px;font-weight:700;color:#3b82f6">1 zł</div>
-                  <div style="font-size:12px;color:#666;margin-top:4px">= 1 punkt za każdą wydaną złotówkę</div>
+                  <div style="font-size:22px;font-weight:700;color:#3b82f6">1 zł = 1 pkt</div>
+                  <div style="font-size:12px;color:#666;margin-top:6px">Punkt za każdą wydaną złotówkę</div>
                 </div>
                 <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:24px;font-weight:700;color:#f59e0b">100 pkt</div>
-                  <div style="font-size:12px;color:#666;margin-top:4px">= 100 zł zniżki na kolejne zakupy</div>
+                  <div style="font-size:22px;font-weight:700;color:#f59e0b">10 pkt = 1 zł</div>
+                  <div style="font-size:12px;color:#666;margin-top:6px">Zniżka przy kolejnych zakupach</div>
                 </div>
                 <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
-                  <div style="font-size:24px;font-weight:700;color:#16a34a">500 pkt</div>
-                  <div style="font-size:12px;color:#666;margin-top:4px">= 500 zł zniżki — premia za lojalność</div>
+                  <div style="font-size:22px;font-weight:700;color:#16a34a">100 pkt = 10 zł</div>
+                  <div style="font-size:12px;color:#666;margin-top:6px">Przykład: zakupy za 100 zł → 10 zł zniżki</div>
+                </div>
+                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+                  <div style="font-size:22px;font-weight:700;color:#7c3aed">500 pkt = 50 zł</div>
+                  <div style="font-size:12px;color:#666;margin-top:6px">Stały klient oszczędza więcej</div>
                 </div>
               </div>
             </mat-card-content>
@@ -208,8 +212,15 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
                 </ng-container>
 
                 <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>Opis</th>
-                  <td mat-cell *matCellDef="let t">{{ t.description || '—' }}</td>
+                  <th mat-header-cell *matHeaderCellDef>Wartość zniżki</th>
+                  <td mat-cell *matCellDef="let t">
+                    <span *ngIf="t.type === 'EARN'" style="color:#16a34a">
+                      {{ (t.points / 10) | number:'1.2-2' }} zł przy realizacji
+                    </span>
+                    <span *ngIf="t.type !== 'EARN'" style="color:#dc2626">
+                      -{{ (t.points / 10) | number:'1.2-2' }} zł zniżki zastosowano
+                    </span>
+                  </td>
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="loyaltyCols"></tr>
