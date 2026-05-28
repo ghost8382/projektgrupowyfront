@@ -110,6 +110,30 @@ import { ContractorDialogComponent } from './contractor-dialog.component';
       <mat-tab label="Program lojalnościowy">
         <div style="padding-top:16px">
 
+          <!-- INFO O ZASADACH -->
+          <mat-card style="margin-bottom:16px;background:#f0f9ff;border-left:4px solid #3b82f6">
+            <mat-card-content style="padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <mat-icon style="color:#3b82f6">info</mat-icon>
+                <strong style="font-size:15px">Zasady programu lojalnościowego</strong>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:8px">
+                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+                  <div style="font-size:24px;font-weight:700;color:#3b82f6">1 zł</div>
+                  <div style="font-size:12px;color:#666;margin-top:4px">= 1 punkt za każdą wydaną złotówkę</div>
+                </div>
+                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+                  <div style="font-size:24px;font-weight:700;color:#f59e0b">100 pkt</div>
+                  <div style="font-size:12px;color:#666;margin-top:4px">= 100 zł zniżki na kolejne zakupy</div>
+                </div>
+                <div style="background:white;border-radius:8px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+                  <div style="font-size:24px;font-weight:700;color:#16a34a">500 pkt</div>
+                  <div style="font-size:12px;color:#666;margin-top:4px">= 500 zł zniżki — premia za lojalność</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
           <mat-card style="margin-bottom:16px">
             <mat-card-content>
               <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
