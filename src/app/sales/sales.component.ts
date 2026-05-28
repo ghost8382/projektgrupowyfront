@@ -65,10 +65,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   contractors: ContractorDTO[] = [];
   allSales: SaleDTO[] = [];
 
-  // filtry
-  filterContractorId: number | '' = '';
-  filterMinPrice: number | null = null;
-  filterMaxPrice: number | null = null;
+  // sortowanie
+  sortPrice: 'asc' | 'desc' | '' = '';
+  sortDate: 'asc' | 'desc' | '' = '';
 
   activeVoucher: LoyaltyVoucher | null = null;
   voucherUsed = false;
@@ -150,32 +149,19 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   applyFilters() {
-    let filtered = [...this.allSales];
+    let data = [...this.allSales];
 
-    if (this.filterContractorId !== '') {
-      filtered = filtered.filter(s => s.contractorId === this.filterContractorId);
+    if (this.sortPrice === 'asc') {
+      data.sort((a, b) => a.totalAmount - b.totalAmount);
+    } else if (this.sortPrice === 'desc') {
+      data.sort((a, b) => b.totalAmount - a.totalAmount);
+    } else if (this.sortDate === 'asc') {
+      data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    } else if (this.sortDate === 'desc') {
+      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-    if (this.filterMinPrice != null && this.filterMinPrice !== ('' as any)) {
-      filtered = filtered.filter(s => s.totalAmount >= this.filterMinPrice!);
-    }
-    if (this.filterMaxPrice != null && this.filterMaxPrice !== ('' as any)) {
-      filtered = filtered.filter(s => s.totalAmount <= this.filterMaxPrice!);
-    }
 
-    this.dataSource.data = filtered;
-  }
-
-  clearFilters() {
-    this.filterContractorId = '';
-    this.filterMinPrice = null;
-    this.filterMaxPrice = null;
-    this.applyFilters();
-  }
-
-  hasActiveFilters(): boolean {
-    return this.filterContractorId !== '' ||
-           this.filterMinPrice != null ||
-           this.filterMaxPrice != null;
+    this.dataSource.data = data;
   }
 
   createItem() {

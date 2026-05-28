@@ -134,51 +134,25 @@
     </mat-card-header>
     <mat-card-content>
 
-      <!-- PANEL FILTRÓW -->
+      <!-- PANEL SORTOWANIA -->
       <div class="filter-bar">
-        <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Kontrahent</mat-label>
-          <mat-select [(ngModel)]="filterContractorId" (ngModelChange)="applyFilters()">
-            <mat-option [value]="''">— wszyscy —</mat-option>
-            <mat-option *ngFor="let c of contractors" [value]="c.id">{{ c.name }}</mat-option>
+        <mat-form-field appearance="outline" class="filter-field filter-price">
+          <mat-label>Sortuj po cenie</mat-label>
+          <mat-select [(ngModel)]="sortPrice" (ngModelChange)="applyFilters()">
+            <mat-option value="">— domyślnie —</mat-option>
+            <mat-option value="asc">od najniższej</mat-option>
+            <mat-option value="desc">od najwyższej</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="filter-field filter-price">
-          <mat-label>Cena od</mat-label>
-          <mat-select [(ngModel)]="filterMinPrice" (ngModelChange)="applyFilters()">
-            <mat-option [value]="null">— brak —</mat-option>
-            <mat-option [value]="0">0 zł</mat-option>
-            <mat-option [value]="50">50 zł</mat-option>
-            <mat-option [value]="100">100 zł</mat-option>
-            <mat-option [value]="200">200 zł</mat-option>
-            <mat-option [value]="500">500 zł</mat-option>
-            <mat-option [value]="1000">1000 zł</mat-option>
+          <mat-label>Sortuj po dacie</mat-label>
+          <mat-select [(ngModel)]="sortDate" (ngModelChange)="applyFilters()">
+            <mat-option value="">— domyślnie —</mat-option>
+            <mat-option value="desc">od najnowszej</mat-option>
+            <mat-option value="asc">od najstarszej</mat-option>
           </mat-select>
         </mat-form-field>
-
-        <mat-form-field appearance="outline" class="filter-field filter-price">
-          <mat-label>Cena do</mat-label>
-          <mat-select [(ngModel)]="filterMaxPrice" (ngModelChange)="applyFilters()">
-            <mat-option [value]="null">— brak —</mat-option>
-            <mat-option [value]="50">50 zł</mat-option>
-            <mat-option [value]="100">100 zł</mat-option>
-            <mat-option [value]="200">200 zł</mat-option>
-            <mat-option [value]="500">500 zł</mat-option>
-            <mat-option [value]="1000">1000 zł</mat-option>
-            <mat-option [value]="5000">5000 zł</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <button mat-stroked-button (click)="clearFilters()" matTooltip="Wyczyść filtry"
-                [disabled]="!hasActiveFilters()">
-          <mat-icon>filter_alt_off</mat-icon> Wyczyść
-        </button>
-      </div>
-
-      <!-- INFO O LICZBIE WYNIKÓW -->
-      <div *ngIf="hasActiveFilters()" style="font-size:13px;color:#666;margin-bottom:8px;padding:0 4px">
-        Wyników: <strong>{{ dataSource.data.length }}</strong> z {{ allSales.length }}
       </div>
 
       <div *ngIf="loading" style="display:flex;justify-content:center;padding:40px">
