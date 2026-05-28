@@ -44,19 +44,42 @@
 
 .filter-bar {
   display: flex;
-  gap: 10px;
+  gap: 16px;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   padding: 12px 16px;
   background: #f8fafc;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
 }
 
-.filter-field { margin-bottom: -1.25em; }
-.filter-date { width: 150px; }
-.filter-price { width: 120px; }
+.filter-contractor {
+  width: 190px;
+  margin-bottom: -1.25em;
+}
+
+.sort-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+
+.sort-label mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
 
 @media (max-width: 900px) {
   .sales-layout {

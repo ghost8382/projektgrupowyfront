@@ -16,6 +16,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { SaleService } from '../services/sale.service';
 import { UserService } from '../services/user.service';
@@ -48,7 +49,8 @@ import { CompanyConfigDialogComponent } from '../company/company-config-dialog.c
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatSortModule
+    MatSortModule,
+    MatButtonToggleModule
   ],
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css']
@@ -65,7 +67,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
   contractors: ContractorDTO[] = [];
   allSales: SaleDTO[] = [];
 
-  // sortowanie
+  // sortowanie i filtr
+  filterContractorId: number | '' = '';
   sortPrice: 'asc' | 'desc' | '' = '';
   sortDate: 'asc' | 'desc' | '' = '';
 
@@ -151,6 +154,12 @@ export class SalesComponent implements OnInit, AfterViewInit {
   applyFilters() {
     let data = [...this.allSales];
 
+    // filtr kontrahenta
+    if (this.filterContractorId !== '') {
+      data = data.filter(s => s.contractorId === this.filterContractorId);
+    }
+
+    // sortowanie — cena ma priorytet nad datą
     if (this.sortPrice === 'asc') {
       data.sort((a, b) => a.totalAmount - b.totalAmount);
     } else if (this.sortPrice === 'desc') {
@@ -217,6 +226,18 @@ export class SalesComponent implements OnInit, AfterViewInit {
         this.submitting = false;
       }
     });
+  }
+
+  onSortPrice(val: string) {
+    this.sortDate = '';
+    this.sortPrice = val as any;
+    this.applyFilters();
+  }
+
+  onSortDate(val: string) {
+    this.sortPrice = '';
+    this.sortDate = val as any;
+    this.applyFilters();
   }
 
   getProductNames(sale: SaleDTO): string {
