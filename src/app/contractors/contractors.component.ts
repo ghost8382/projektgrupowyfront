@@ -18,6 +18,7 @@ import { forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ContractorService } from '../services/contractor.service';
+import { LoyaltyVoucherService } from '../services/loyalty-voucher.service';
 import { ContractorDTO, LoyaltyAccountDTO, LoyaltyTransactionDTO } from '../models/models';
 import { ContractorDialogComponent } from './contractor-dialog.component';
 import { RedeemDialogComponent } from './redeem-dialog.component';
@@ -307,6 +308,7 @@ export class ContractorsComponent implements OnInit {
 
   constructor(
     private contractorService: ContractorService,
+    private voucherService: LoyaltyVoucherService,
     private dialog: MatDialog,
     private snack: MatSnackBar
   ) {}
@@ -384,10 +386,18 @@ export class ContractorsComponent implements OnInit {
 
       this.contractorService.redeemPoints(this.selectedContractorId!, pointsToRedeem).subscribe({
         next: () => {
+          // zapisz bon do użycia przy sprzedaży
+          this.voucherService.set({
+            contractorId: this.selectedContractorId!,
+            contractorName: contractorName,
+            amount: parseFloat(discount),
+            points: pointsToRedeem,
+            date: new Date().toISOString()
+          });
           this.snack.open(
-            `Zrealizowano ${pointsToRedeem} pkt — przyznano ${discount} zł zniżki!`,
+            `Bon wystawiony: ${discount} zł zniżki dla ${contractorName}. Zostanie zastosowany przy następnej sprzedaży.`,
             'OK',
-            { duration: 4000 }
+            { duration: 5000 }
           );
           this.redeeming = false;
           this.onContractorSelect(this.selectedContractorId);

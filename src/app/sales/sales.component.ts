@@ -22,6 +22,7 @@ import { UserService } from '../services/user.service';
 import { ProductService } from '../services/product.service';
 import { ContractorService } from '../services/contractor.service';
 import { CompanyConfigService } from '../services/company-config.service';
+import { LoyaltyVoucherService, LoyaltyVoucher } from '../services/loyalty-voucher.service';
 import { SaleDTO, UserDTO, ProductDTO, ContractorDTO } from '../models/models';
 import { SaleDetailDialogComponent } from './sale-detail-dialog.component';
 import { CompanyConfigDialogComponent } from '../company/company-config-dialog.component';
@@ -62,6 +63,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   products: ProductDTO[] = [];
   contractors: ContractorDTO[] = [];
 
+  activeVoucher: LoyaltyVoucher | null = null;
+  voucherUsed = false;
+
   loading = false;
   submitting = false;
 
@@ -73,6 +77,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
     private productService: ProductService,
     private contractorService: ContractorService,
     private companyConfigService: CompanyConfigService,
+    private voucherService: LoyaltyVoucherService,
     private dialog: MatDialog,
     private snack: MatSnackBar,
     private fb: FormBuilder
@@ -170,10 +175,16 @@ export class SalesComponent implements OnInit, AfterViewInit {
       }))
     }).subscribe({
       next: () => {
+        // jeśli bon był użyty — usuń go
+        if (this.voucherUsed && val.contractorId) {
+          this.voucherService.clear(val.contractorId);
+        }
         this.snack.open('Sprzedaż zapisana!', 'OK', { duration: 2000 });
         this.form.reset({ userId: null, contractorId: null });
         this.items.clear();
         this.items.push(this.createItem());
+        this.activeVoucher = null;
+        this.voucherUsed = false;
         this.submitting = false;
         this.load();
       },
@@ -182,6 +193,27 @@ export class SalesComponent implements OnInit, AfterViewInit {
         this.submitting = false;
       }
     });
+  }
+
+  onContractorChange(contractorId: number | null) {
+    this.activeVoucher = null;
+    this.voucherUsed = false;
+    if (!contractorId) return;
+    this.activeVoucher = this.voucherService.get(contractorId);
+  }
+
+  applyVoucher() {
+    if (!this.activeVoucher) return;
+    this.voucherUsed = true;
+    this.snack.open(
+      `Bon ${this.activeVoucher.amount.toFixed(2)} zł zostanie zastosowany — pamiętaj odjąć od sumy!`,
+      'OK', { duration: 5000 }
+    );
+  }
+
+  skipVoucher() {
+    this.activeVoucher = null;
+    this.voucherUsed = false;
   }
 
   productDisplay = (p: ProductDTO | null): string => p?.name ?? '';
