@@ -163,22 +163,22 @@ import { RedeemDialogComponent } from './redeem-dialog.component';
                 <div *ngIf="loyaltyAccount" class="points-badge">
                   <mat-icon style="color:#f59e0b;font-size:22px;height:22px;width:22px">stars</mat-icon>
                   <div>
-                    <div style="font-weight:700;font-size:16px">{{ loyaltyAccount.points }} pkt</div>
+                    <div style="font-weight:700;font-size:16px">{{ loyaltyAccount.totalPoints }} pkt</div>
                     <div style="font-size:12px;color:#92400e">
-                      = {{ loyaltyAccount.points / 10 | number:'1.2-2' }} zł do wykorzystania
+                      = {{ loyaltyAccount.totalPoints / 10 | number:'1.2-2' }} zł do wykorzystania
                     </div>
                   </div>
                 </div>
 
                 <button mat-raised-button color="accent"
-                        *ngIf="loyaltyAccount && loyaltyAccount.points >= 10"
+                        *ngIf="loyaltyAccount && loyaltyAccount.totalPoints >= 10"
                         (click)="openRedeemDialog()"
                         [disabled]="redeeming">
                   <mat-icon>redeem</mat-icon>
                   {{ redeeming ? 'Realizowanie...' : 'Zrealizuj punkty' }}
                 </button>
 
-                <span *ngIf="loyaltyAccount && loyaltyAccount.points > 0 && loyaltyAccount.points < 10"
+                <span *ngIf="loyaltyAccount && loyaltyAccount.totalPoints > 0 && loyaltyAccount.totalPoints < 10"
                       style="font-size:12px;color:#888;font-style:italic">
                   Minimalna realizacja: 10 pkt (1 zł)
                 </span>
@@ -233,13 +233,13 @@ import { RedeemDialogComponent } from './redeem-dialog.component';
                 </ng-container>
 
                 <ng-container matColumnDef="value">
-                  <th mat-header-cell *matHeaderCellDef>Zniżka</th>
+                  <th mat-header-cell *matHeaderCellDef>Zniżka zarobiona</th>
                   <td mat-cell *matCellDef="let t">
                     <span *ngIf="t.type === 'EARN'" style="color:#16a34a;font-weight:600">
                       +{{ (t.points / 10) | number:'1.2-2' }} zł
                     </span>
                     <span *ngIf="t.type !== 'EARN'" style="color:#dc2626;font-weight:600">
-                      -{{ (t.points / 10) | number:'1.2-2' }} zł
+                      -{{ (t.points / 10) | number:'1.2-2' }} zł zniżki
                     </span>
                   </td>
                 </ng-container>
@@ -247,7 +247,10 @@ import { RedeemDialogComponent } from './redeem-dialog.component';
                 <ng-container matColumnDef="description">
                   <th mat-header-cell *matHeaderCellDef>Opis</th>
                   <td mat-cell *matCellDef="let t" style="color:#666;font-size:13px">
-                    {{ t.description || (t.type === 'EARN' ? 'Punkty za zakup' : 'Realizacja zniżki') }}
+                    <span *ngIf="t.type === 'EARN'">
+                      Zakup {{ t.saleId ? '#' + t.saleId : '' }}
+                    </span>
+                    <span *ngIf="t.type !== 'EARN'">Realizacja zniżki</span>
                   </td>
                 </ng-container>
 
@@ -368,7 +371,7 @@ export class ContractorsComponent implements OnInit {
     const ref = this.dialog.open(RedeemDialogComponent, {
       data: {
         contractorName,
-        points: this.loyaltyAccount.points
+        points: this.loyaltyAccount.totalPoints
       },
       width: '420px'
     });

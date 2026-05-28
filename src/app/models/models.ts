@@ -83,7 +83,7 @@ export interface CompanyConfigDTO {
 
 export interface LoyaltyAccountDTO {
   id?: number;
-  points: number;
+  totalPoints: number;
   contractorId: number;
   contractorName?: string;
 }
@@ -92,6 +92,6 @@ export interface LoyaltyTransactionDTO {
   id?: number;
   points: number;
   type: string;
-  description?: string;
+  saleId?: number | null;
   date: string;
 }
