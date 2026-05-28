@@ -1,0 +1,138 @@
+﻿<h2 class="page-title">Sprzedaż</h2>
+
+<div class="sales-layout">
+  <!-- FORMULARZ NOWEJ SPRZEDAŻY -->
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Nowa sprzedaż</mat-card-title>
+      <span style="flex:1"></span>
+      <button mat-stroked-button type="button" (click)="openCompanyConfig()">
+        <mat-icon>store</mat-icon>
+        Dane sprzedawcy
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="sale-form">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sprzedawca</mat-label>
+          <mat-select formControlName="userId">
+            <mat-option *ngFor="let u of users" [value]="u.id">
+              {{ u.username }} ({{ u.role }})
+            </mat-option>
+          </mat-select>
+          <mat-error>Wybierz sprzedawcę</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Kontrahent (opcjonalnie – wymagany do faktury)</mat-label>
+          <mat-select formControlName="contractorId">
+            <mat-option [value]="null">— Paragon (bez kontrahenta) —</mat-option>
+            <mat-option *ngFor="let c of contractors" [value]="c.id">
+              {{ c.name }}<span *ngIf="c.nip"> · NIP: {{ c.nip }}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="items-label">Pozycje zamówienia:</div>
+
+        <div formArrayName="items">
+          <div *ngFor="let item of items.controls; let i = index"
+               [formGroupName]="i" class="item-row">
+            <mat-form-field appearance="outline" class="product-field">
+              <mat-label>Produkt</mat-label>
+              <input
+                type="text"
+                matInput
+                formControlName="product"
+                [matAutocomplete]="productAuto"
+                placeholder="Zacznij pisać nazwę…"
+              >
+              <mat-autocomplete
+                #productAuto="matAutocomplete"
+                [displayWith]="productDisplay"
+                autoActiveFirstOption
+              >
+                <mat-option *ngFor="let p of filteredProductsFor(i)" [value]="p">
+                  {{ p.name }} (stan: {{ p.quantity }}, {{ p.price | number:'1.2-2' }} zł)
+                </mat-option>
+              </mat-autocomplete>
+              <mat-error>Wybierz produkt</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="qty-field">
+              <mat-label>Ilość</mat-label>
+              <input matInput type="number" formControlName="quantity" min="1">
+              <mat-error>Min. 1</mat-error>
+            </mat-form-field>
+
+            <button mat-icon-button color="warn" type="button"
+                    (click)="removeItem(i)" [disabled]="items.length === 1" matTooltip="Usuń pozycję">
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <button mat-stroked-button type="button" (click)="addItem()" class="add-item-btn">
+          <mat-icon>add</mat-icon> Dodaj pozycję
+        </button>
+
+        <mat-divider style="margin:16px 0"></mat-divider>
+
+        <button mat-raised-button color="primary" type="submit"
+                class="full-width submit-btn" [disabled]="submitting">
+          <mat-icon>save</mat-icon>
+          {{ submitting ? 'Zapisywanie...' : 'Zapisz sprzedaż' }}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- LISTA TRANSAKCJI -->
+  <mat-card class="list-card">
+    <mat-card-header>
+      <mat-card-title>Historia transakcji</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div *ngIf="loading" style="display:flex;justify-content:center;padding:40px">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+      <table mat-table [dataSource]="dataSource" class="full-width" *ngIf="!loading">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let s">{{ s.id }}</td>
+        </ng-container>
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Data</th>
+          <td mat-cell *matCellDef="let s">{{ s.date | date:'dd.MM.yyyy HH:mm' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Sprzedawca</th>
+          <td mat-cell *matCellDef="let s">{{ s.username }}</td>
+        </ng-container>
+        <ng-container matColumnDef="contractorName">
+          <th mat-header-cell *matHeaderCellDef>Kontrahent</th>
+          <td mat-cell *matCellDef="let s">{{ s.contractorName || '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="totalAmount">
+          <th mat-header-cell *matHeaderCellDef>Suma</th>
+          <td mat-cell *matCellDef="let s"><strong>{{ s.totalAmount | number:'1.2-2' }} zł</strong></td>
+        </ng-container>
+        <ng-container matColumnDef="itemsCount">
+          <th mat-header-cell *matHeaderCellDef>Pozycji</th>
+          <td mat-cell *matCellDef="let s">{{ s.items.length }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Szczegóły</th>
+          <td mat-cell *matCellDef="let s">
+            <button mat-icon-button matTooltip="Podgląd i PDF" (click)="openDetail(s)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="cols"></tr>
+        <tr mat-row *matRowDef="let row; columns: cols" class="table-row"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

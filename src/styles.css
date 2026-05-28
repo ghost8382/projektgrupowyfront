@@ -1,0 +1,41 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f7fa;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #3f51b5;
+}
+
+.spacer { flex: 1 1 auto; }
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-field { min-width: 200px; }
+
+.full-width { width: 100%; }
+
+.mat-mdc-table { width: 100%; }
+
+.low-stock { color: #e53935; font-weight: bold; }
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 340px;
+  padding-top: 8px;
+}/* You can add global styles to this file, and also import other style files */

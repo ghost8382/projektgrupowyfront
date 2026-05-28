@@ -1,0 +1,33 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 15% 10%, var(--mat-sys-primary-container) 0%, transparent 55%),
+    radial-gradient(circle at 85% 20%, var(--mat-sys-tertiary-container) 0%, transparent 50%),
+    linear-gradient(180deg, var(--mat-sys-surface-container-low) 0%, var(--mat-sys-surface) 100%);
+}
+
+.login-card {
+  width: 380px;
+  padding: 16px;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.login-btn {
+  height: 46px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+mat-card-title { font-size: 22px !important; }

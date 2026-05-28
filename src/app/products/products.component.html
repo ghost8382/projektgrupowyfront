@@ -1,0 +1,115 @@
+<h2 class="page-title">📦 Produkty</h2>
+
+<div class="action-bar">
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Szukaj po nazwie</mat-label>
+    <input matInput [formControl]="nameControl" placeholder="np. Odkurzacz">
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Kategoria</mat-label>
+    <mat-select [formControl]="categoryControl">
+      <mat-option [value]="null">Wszystkie</mat-option>
+      <ng-container *ngFor="let root of categoryTree">
+        <mat-option
+          [value]="root.id"
+          (mouseenter)="hoverCategory(root.id)"
+          (mouseleave)="hoverCategory(null)"
+        >
+          {{ root.name }}
+        </mat-option>
+        <ng-container *ngIf="root.children.length > 0 && isExpanded(root)">
+          <ng-container *ngTemplateOutlet="nestedOptions; context: { nodes: root.children, level: 1 }"></ng-container>
+        </ng-container>
+      </ng-container>
+    </mat-select>
+  </mat-form-field>
+
+  <ng-template #nestedOptions let-nodes="nodes" let-level="level">
+    <ng-container *ngFor="let child of nodes">
+      <mat-option
+        [value]="child.id"
+        class="nested-option"
+        [style.padding-left.px]="24 + level * 16"
+        (mouseenter)="hoverCategory(child.id)"
+        (mouseleave)="hoverCategory(null)"
+      >
+        {{ child.name }}
+      </mat-option>
+      <ng-container *ngIf="child.children.length > 0 && isExpanded(child)">
+        <ng-container *ngTemplateOutlet="nestedOptions; context: { nodes: child.children, level: level + 1 }"></ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+
+  <span class="spacer"></span>
+
+  <button mat-raised-button color="primary" (click)="openAddDialog()">
+    <mat-icon>add</mat-icon> Dodaj produkt
+  </button>
+</div>
+
+<mat-card>
+  <div *ngIf="loading" class="spinner-wrap">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" class="full-width" *ngIf="!loading">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let p">{{ p.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Nazwa</th>
+      <td mat-cell *matCellDef="let p"><strong>{{ p.name }}</strong></td>
+    </ng-container>
+
+    <ng-container matColumnDef="categoryName">
+      <th mat-header-cell *matHeaderCellDef>Kategoria</th>
+      <td mat-cell *matCellDef="let p">{{ p.categoryName || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="quantity">
+      <th mat-header-cell *matHeaderCellDef>Ilość</th>
+      <td mat-cell *matCellDef="let p">
+        <span [class.low-stock]="p.quantity < 5">{{ p.quantity }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+      <th mat-header-cell *matHeaderCellDef>Cena</th>
+      <td mat-cell *matCellDef="let p">{{ p.price | number:'1.2-2' }} zł</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Akcje</th>
+      <td mat-cell *matCellDef="let p" class="actions-cell">
+        <button mat-icon-button color="primary" matTooltip="Przyjęcie (+)" (click)="openStockDialog(p, 'add')">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" matTooltip="Wydanie (-)" (click)="openStockDialog(p, 'remove')">
+          <mat-icon>remove_circle</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Historia ruchów" (click)="openMovements(p)">
+          <mat-icon>history</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" matTooltip="Usuń" (click)="deleteProduct(p.id!)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns" class="table-row"></tr>
+  </table>
+
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    (page)="onPage($event)"
+    showFirstLastButtons>
+  </mat-paginator>
+</mat-card>

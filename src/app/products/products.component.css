@@ -1,0 +1,22 @@
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.table-row:hover {
+  background: #f5f5f5;
+}
+
+.nested-option {
+  font-size: 13px;
+}
+
+mat-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
